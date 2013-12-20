@@ -15,7 +15,7 @@ void add_edge(int from,int to,int c) {
 	nxt[E] = head[from];
 	head[from] = E++;
 }
-
+ 
 int Q[MAX_N], sign;
 bool bfs(int s,int t){
 	sign = t;
