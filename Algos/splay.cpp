@@ -1,5 +1,4 @@
-struct node 
-{
+struct node {
   node *c[2],*fa;
   int val;
   int sz;
@@ -21,8 +20,7 @@ struct node
 }NODE[N],*null=NODE;
 node* ID[N];
 int top;
-struct Tree
-{
+struct Tree{
   node* root;
   void init(int v) {
     node* x = &NODE[++top];
