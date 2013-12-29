@@ -1,4 +1,8 @@
-#define foreach(it,G) for(__typeof(G.begin())it = G.begin();it != G.end(); it++)
+#include <vector>
+#include <cstdio>
+#include <algorithm>
+#include <cstring>
+#define foreach(it,G) for(__typeof(G.begin())it = G.begin(); it != G.end(); it++)
 const int N = 100010;
 std::vector<int> G[N], rG[N], vs;
 bool used[N];
@@ -9,7 +13,7 @@ void add_edge(int a,int b) {
 }
 void dfs(int u) {
   used[u] = true;
-  foreach(it,G[u]) if(!used[*it]) dfs(*it);
+  foreach(it, G[u]) if(!used[*it]) dfs(*it);
   vs.push_back(u);
 }
 void rdfs(int u,int which) {
@@ -18,10 +22,10 @@ void rdfs(int u,int which) {
   foreach(it,rG[u]) if(!used[*it]) rdfs(*it, which);
 }
 int scc(int n) {
-  std::fill(used,used+n,false);
+  std::fill(used, used + n, false);
   vs.clear();
   for(int v = 0; v < n; v++) if(!used[v]) dfs(v);
-  std::fill(used,used+n,false);
+  std::fill(used, used + n, false);
   int cnt = 0;
   for(int i = vs.size() - 1; i >= 0; i--)
     if(!used[vs[i]]) rdfs(vs[i],cnt++);
