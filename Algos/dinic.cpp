@@ -21,7 +21,7 @@ bool bfs(int s,int t){
   sign = t;
   std::fill(level, level + n, -1);
   int fr = 0, ed = 0;
-  Q[ed++] = ed; level[s] = 0;
+  Q[ed++] = s; level[s] = 0;
   while(fr < ed && level[t] == -1) {
     int u = Q[fr++];
     for(int i = head[u]; i != -1; i = nxt[i]) {
