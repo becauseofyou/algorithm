@@ -1,0 +1,21 @@
+#include <set>
+#include <map>
+#include <list>
+#include <stack>
+#include <queue>
+#include <cmath>
+#include <deque>
+#include <bitset>
+#include <cstdio>
+#include <vector>
+#include <string>
+#include <complex>
+#include <sstream>
+#include <utility>
+#include <climits>
+#include <cstring>
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <algorithm>
+typedef long long ll;
