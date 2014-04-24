@@ -83,3 +83,7 @@ struct Max_Flow  {
     int s, t, n;
     int Q[N], sign;
 };
+int main () {
+    Max_Flow<int> *gao = new Max_Flow<int> ();
+    return 0;
+}
