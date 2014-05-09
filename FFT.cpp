@@ -66,3 +66,40 @@ namespace FFT{
         return n+1;
     }
 }
+int cnt[100010], a[100010];
+int main() {
+    int T, n;
+    scanf("%d",&T);
+    while(T--) {
+        scanf("%d",&n);
+        memset(cnt, 0, sizeof(cnt));
+        for(int i = 0; i < n; i++) {
+            scanf("%d",&a[i]);
+            cnt[a[i]] ++;
+        }
+        std::sort(a, a + n);
+        int len = FFT::mul(a[n-1]+1, cnt, a[n-1]+1, cnt);
+        for(int i = 0; i < n; i++) {
+            FFT::res[a[i] + a[i]]--;
+        }
+        for(int i = 0; i < len; i++) {
+            FFT::res[i] >>= 1; 
+        }
+//        for(int i = 0; i <= len; i++) {
+//            printf("%lld ", FFT::res[i]);
+//        }
+//        puts("");
+        for(int i = 1; i < len; i++) {
+            FFT::res[i] += FFT::res[i - 1];
+        }
+        long long ret = 0;
+        for(int i = 0; i < n; i++) {
+            ret += FFT::res[len - 1] - FFT::res[a[i]];
+            ret -= 1LL * (n - i - 2) * (n - i - 1) / 2;
+            ret -= 1LL * i * (n - i - 1);
+            ret -= n - 1;
+        }
+        printf("%.7f\n",1.0*ret*6/(n-1)/(n-2)/n);
+    }
+    return 0;
+}
