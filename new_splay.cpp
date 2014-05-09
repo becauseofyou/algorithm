@@ -1,29 +1,19 @@
-#pragma comment(linker, "/STACK:1000000000,1000000000")
-#include <cstdio>
-#include <queue>
-#include <algorithm>
-#include <cstring>
-const int N = 100010;
-
 struct Node;
 Node* null;
-int K;
 
 struct Node {
     Node *c[2], *p;
     Node() {
         c[0] = c[1] = p = null;
-        isRoot = sz = cnt = val = 0;
+        isRoot = sz;
     }
     Node(int _isRoot, int _sz, int _cnt, int _val) {
         c[0] = c[1] = p = null;
         isRoot = _isRoot;
         sz = _sz;
-        cnt = _cnt;
-        val = _val;
     }
-    int isRoot, sz, cnt, val;
-    int fill;
+    int isRoot, sz;
+    int val;
     inline void setc(int d,Node *s) {
         c[d] = s;
         s->p = this;
@@ -32,21 +22,17 @@ struct Node {
         return p->c[1] == this;
     }
     void up() {
-        sz = c[0]->sz + c[1]->sz + cnt;
-        fill = c[0]->fill + c[1]->fill + (cnt == K);
+        sz = c[0]->sz + c[1]->sz + 1;
     }
     void clear() {
         sz = 1;
-        isRoot = fill = 0;
+        isRoot = 0;
         c[0] = c[1] = p = null;
     }
 }pool[N], *C ;
 
-Node* root[N];
-
-/*
- * 从高到低依次修改
- */
+Node* idx[N];
+Node* root;
 void rot(Node *x) {
     Node *p = x->p;
     int f = x->d();
@@ -57,9 +43,9 @@ void rot(Node *x) {
     p->up();
 }
 
-void splay(Node *x) {
-    while(!x->isRoot) {
-        if(x->p->isRoot) {
+void splay(Node *x, Node *goal) {
+    while(x->p != goal) {
+        if(x->p->p == goal) {
             rot(x);
         } else {
             bool f = x->p->d();
@@ -68,8 +54,62 @@ void splay(Node *x) {
         }
     }
     x->up();
+    if(goal == null) root = x;
+}
+void slect(int k, Node *goal) {
+    Node *x = root;
+    while(x->c[0]->sz + 1 != k) {
+        if(k < x->c[0]->sz + 1) {
+            x = x->c[0];
+        } else {
+            k -= x->c[0]->sz + 1;
+            x = x->c[1];
+        }
+    }
+    splay(x, goal);
+}
+int a[N];
+void build(Node *&x, int l, int r, Node *fa) {
+    if(l > r)  {
+        return ;
+    }
+    int m = (l + r) >> 1;
+    x = new(C++) Node();
+    x->p = fa;
+    x->sz = 1;
+    idx[a[m]] = x;
+    x->val = a[m];
+    build(x->c[0], l, m - 1, x);
+    build(x->c[1], m + 1, r, x);
+    x->up();
+}
+void debug(Node *x) {
+
+    if(x->c[0] != null) debug(x->c[0]);
+    printf("%d ", x->val);
+    if(x->c[1] != null) debug(x->c[1]);
+}
+void init() {
+    res.clear();
+    C = pool;
+    null = new (C++) Node();
+    root = new(C++) Node();
+    root->isRoot = 1;
+    root->setc(1, new(C++) Node());
+    build(root->c[1]->c[0], 1, n, root->c[1]);
+    root->c[1]->up(); root->up();
 }
 
+// cut the number between L and R, and insert them after position p
+void cut_insert(int L, int R, int p) {
+    slect(L - 1, null);
+    slect(R + 1, root);
+    Node *stree = root->c[1]->c[0];
+    root->c[1]->c[0] = null;
+    slect(p, null);
+    slect(p + 1, root);
+    root->c[1]->setc(0, stree);
+}
 Node* insert(Node *x, Node *y) { //将y节点插入某棵splay树
     if(x->val == y->val) {
         x->cnt += y->cnt;
@@ -82,12 +122,6 @@ Node* insert(Node *x, Node *y) { //将y节点插入某棵splay树
     }
     return insert(x->c[d], y);
 }
-void debug(Node *x) {
-    if(x->c[0] != null) debug(x->c[0]);
-    printf("col=%d %d %d\n",x,x->val,x->cnt);
-    if(x->c[1] != null) debug(x->c[1]);
-}
-
 void merge(Node *&A, Node *B) { // merge tree_B to  tree_A
     if(A->sz <= B->sz) {
         std::swap(A, B);
@@ -105,66 +139,13 @@ void merge(Node *&A, Node *B) { // merge tree_B to  tree_A
     }
 }
 
-
-struct Edge {
-    int v;
-    Edge *next;
-}ee[N*2], *E;
-Edge *list[N];
-void addEdge(int a, int b) {
-    Edge *e = new(E++)Edge();
-    e->v = b;
-    e->next = list[a];
-    list[a] = e;
-}
-int ans[N], col[N], n;
-
-void dfs(int u,int f) {
-    for(Edge *e = list[u]; e; e = e->next) {
-        int v = e->v;
-        if(v == f) continue;
-        dfs(v, u);
-        merge(root[u], root[v]);
-    }
-    ans[u] = root[u]->fill;
-}
-
-void init() {
-    C = pool; E = ee;
-    null = new (C++)Node();
-    for(int i = 0; i < n; i++) {
-        list[i] = NULL;
-        scanf("%d",&col[i]);
-    }
-    for(int i = 0; i < n; i++) { 
-        root[i] = new (C++) Node(1, 1, 1, col[i]);
-        root[i]->up();
-        //        debug(root[i]);
-    }
-}
-
-int main() {
-    int t, ca = 1;
-    scanf("%d",&t);
-    while(t--) {
-        scanf("%d%d",&n,&K);
-        init();
-        for(int i = 0, a, b; i < n - 1; i++) {
-            scanf("%d%d",&a,&b);
-            a --; b --;
-            addEdge(a, b);
-            addEdge(b, a);
-        }
-        dfs(0, -1);
-        int q, a;
-        if(ca > 1) puts("");
-        printf("Case #%d:\n",ca++);
-        scanf("%d",&q);
-        while(q--) {
-            scanf("%d",&a);
-            a--;
-            printf("%d\n",ans[a]);
-        }
-    }
-    return 0;
+void delRoot() {
+    Node* t = root;
+    if(t->c[1]!=null) {
+        root = t->c[1];
+        slect(1, null);
+        root->setc(0,t->c[0]);
+    } else root = root->c[0];
+    root->fa = null;
+    if(root!=null) root->up();
 }
