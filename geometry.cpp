@@ -34,13 +34,6 @@ struct Cir {
 };
 typedef Point Vector;
 
-int n;
-Cir circle[25];
-vector<Point> Points;
-double D[1010];
-bool deleted[1010];
-double dis[1010][1010];
-
 Vector operator + (const Vector &a, const Vector &b) {
 	return Vector(a.x + b.x, a.y + b.y);
 }
@@ -48,7 +41,7 @@ Vector operator - (const Vector &a, Vector &b) {
 	return Point ( (a.x - b.x) , (a.y - b.y) );
 }
 Vector operator * (const Vector &a, double t) {
-    return Vector(a.x * t, a.y * t);
+	return Vector(a.x * t, a.y * t);
 }
 Vector operator / (const Vector &a, double p) {
 	return Vector(a.x / p, a.y / p);
@@ -72,48 +65,48 @@ double cross(Point a, Point b, Point c) {
 	return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
 }
 bool same_dir(Vector a, Vector b) {							// 向量是否同向
-    return sgn(a.x * b.y - b.x * a.y) == 0 && sgn(a.x * b.x) >= 0 && sgn(a.y * b.y) >= 0;
+	return sgn(a.x * b.y - b.x * a.y) == 0 && sgn(a.x * b.x) >= 0 && sgn(a.y * b.y) >= 0;
 }
 bool dot_on_seg(Point p, Seg L) {
 	return sgn(cross(L.s - p, L.e - p)) == 0 && sgn(dot(L.s - p, L.e - p)) <= 0;
 }
 double ppdis(Point a, Point b) {								// 点点距离
-    return sqrt( (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) );
+	return sqrt( (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) );
 }
 double pldis(Point p,Point l1,Point l2){						// 点线距离
 	return fabs(cross(p,l1,l2))/ppdis(l1,l2);
 }
 double pldis(Point p, Line ln) {									// 点线距离
-    return fabs(ln.a * p.x + ln.b * p.y + ln.c) / sqrt(ln.a * ln.a + ln.b * ln.b);
+	return fabs(ln.a * p.x + ln.b * p.y + ln.c) / sqrt(ln.a * ln.a + ln.b * ln.b);
 }
 bool point_in_circle(Point &a, Cir cr) {
 	return sgn(ppdis(a, cr.ct) - cr.r) <= 0;
 }
 bool intersect(Point P, Vector v, Point Q, Vector w, Point &p) {
-    Vector u = P - Q;
-    if(sgn(cross(v, w)) == 0) return false;
-    double t = cross(w, u) / cross(v, w);
-    p = P + v * t;
-    return true;
+	Vector u = P - Q;
+	if(sgn(cross(v, w)) == 0) return false;
+	double t = cross(w, u) / cross(v, w);
+	p = P + v * t;
+	return true;
 }
 bool segcross(Point p1, Point p2, Point q1, Point q2) {
-    return (
-            std::min(p1.x, p2.x) <= std::max(q1.x, q2.x) &&
-            std::min(q1.x, q2.x) <= std::max(p1.x, p2.x) &&
-            std::min(p1.y, p2.y) <= std::max(q1.y, q2.y) &&
-            std::min(q1.y, q2.y) <= std::max(p1.y, p2.y) && /* 跨立实验 */
-            cross(p1, q2, q1) * cross(p2, q2, q1) <= 0 && 
-            cross(q1, p2, p1) * cross(q2, p2, p1) <= 0  /* 叉积相乘判方向 */
-           );
+	return (
+			std::min(p1.x, p2.x) <= std::max(q1.x, q2.x) &&
+			std::min(q1.x, q2.x) <= std::max(p1.x, p2.x) &&
+			std::min(p1.y, p2.y) <= std::max(q1.y, q2.y) &&
+			std::min(q1.y, q2.y) <= std::max(p1.y, p2.y) && /* 跨立实验 */
+			cross(p1, q2, q1) * cross(p2, q2, q1) <= 0 && 
+			cross(q1, p2, p1) * cross(q2, p2, p1) <= 0  /* 叉积相乘判方向 */
+	       );
 }
 bool line_inst(Line l1, Line l2, Point &p) {						// 直线相交 
-    double d = l1.a * l2.b - l2.a * l1.b;
-    if ( sgn(d) == 0){
-    	return false;
-    }
-    p.x = (-l1.c * l2.b + l2.c * l1.b) / d;
-    p.y = (-l1.a * l2.c + l2.a * l1.c) / d;
-    return true; 
+	double d = l1.a * l2.b - l2.a * l1.b;
+	if ( sgn(d) == 0){
+		return false;
+	}
+	p.x = (-l1.c * l2.b + l2.c * l1.b) / d;
+	p.y = (-l1.a * l2.c + l2.a * l1.c) / d;
+	return true; 
 }
 Line turn(Point s, Point e) {
 	Line ln;
@@ -209,16 +202,16 @@ bool cir_cir(Point c1, double r1, Point c2, double r2, Point& p1, Point& p2) {//
 }
 double cir_area_inst(Point c1, double r1, Point c2, double r2) {			// 两圆面积交
 	double a1, a2, d, ret;
-    d = sqrt((c1.x-c2.x)*(c1.x-c2.x)+(c1.y-c2.y)*(c1.y-c2.y));
-    if ( d > r1 + r2 - eps ) 
-        return 0;
-    if ( d < r2 - r1 + eps ) 
-        return pi*r1*r1;
+	d = sqrt((c1.x-c2.x)*(c1.x-c2.x)+(c1.y-c2.y)*(c1.y-c2.y));
+	if ( d > r1 + r2 - eps ) 
+		return 0;
+	if ( d < r2 - r1 + eps ) 
+		return pi*r1*r1;
 	if ( d < r1 - r2 + eps )
 		return pi*r2*r2;
-    a1 = acos((r1*r1+d*d-r2*r2)/2/r1/d);
-    a2 = acos((r2*r2+d*d-r1*r1)/2/r2/d);
-    ret = (a1-0.5*sin(2*a1))*r1*r1 + (a2-0.5*sin(2*a2))*r2*r2;
+	a1 = acos((r1*r1+d*d-r2*r2)/2/r1/d);
+	a2 = acos((r2*r2+d*d-r1*r1)/2/r2/d);
+	ret = (a1-0.5*sin(2*a1))*r1*r1 + (a2-0.5*sin(2*a2))*r2*r2;
 	return ret;
 }
 struct Ball { double x, y, z, r; };
@@ -313,22 +306,22 @@ void Grahamxy(Point *p, int &n) {									// 水平序(住:两倍空间)
 }
 
 bool cmpag(Point a, Point b) {
-    double t = (a-GP).x*(b-GP).y - (b-GP).x*(a-GP).y;
-    return fabs(t) > eps ? t > 0 : PPdis(a, GP) < PPdis(b, GP);
+	double t = (a-GP).x*(b-GP).y - (b-GP).x*(a-GP).y;
+	return fabs(t) > eps ? t > 0 : PPdis(a, GP) < PPdis(b, GP);
 }
 void Grahamag(Point *p, int &n) {									// 极角序                    
-    int i, top = 1;
-    GP = p[0];
-    for (i=1; i < n; i++) if(p[i].y<GP.y-eps || (fabs(p[i].y-GP.y)<eps && p[i].x<GP.x)) {
-        GP = p[i];
-    }
-    sort(p, p+n, cmpag);
-    for ( i=2; i < n; i++ ) {
-        while ( top > 0 &&  Cross(p[top], p[i], p[top-1]) < eps )
-            top--;
-        p[++top] = p[i];
-    }
-    p[++top] = p[0];
-    n = top;
+	int i, top = 1;
+	GP = p[0];
+	for (i=1; i < n; i++) if(p[i].y<GP.y-eps || (fabs(p[i].y-GP.y)<eps && p[i].x<GP.x)) {
+		GP = p[i];
+	}
+	sort(p, p+n, cmpag);
+	for ( i=2; i < n; i++ ) {
+		while ( top > 0 &&  Cross(p[top], p[i], p[top-1]) < eps )
+			top--;
+		p[++top] = p[i];
+	}
+	p[++top] = p[0];
+	n = top;
 }
 /***************************************************************************************/
