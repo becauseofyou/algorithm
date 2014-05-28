@@ -132,7 +132,7 @@ bool cir_line(Point ct, double r, Point l1, Point l2, Point& p1, Point& p2) {// 
 }
 bool cir_cir(Point c1, double r1, Point c2, double r2, Point& p1, Point& p2) {// 圆与圆
 	double d = ppdis(c1, c2);
-	if ( sgn(d - r1 - r2) > 0|| sgn (d - fabs(r1 - r2) ) > 0 )
+	if ( sgn(d - r1 - r2) > 0|| sgn (d - fabs(r1 - r2) ) < 0 )
 		return false;
 	Point u, v;
 	double t = (1 + (r1 * r1 - r2 * r2) / ppdis(c1, c2) / ppdis(c1, c2)) / 2;
