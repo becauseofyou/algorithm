@@ -1,93 +1,102 @@
-/* **********************************************
-Author      : wuyiqi
-Created Time: 2014年04月05日 星期六 11时11分57秒
-File Name   : A.cpp
- *********************************************** */
-#include <set>
-#include <map>
-#include <list>
-#include <stack>
-#include <queue>
 #include <cmath>
-#include <deque>
-#include <bitset>
 #include <cstdio>
-#include <vector>
-#include <string>
-#include <complex>
-#include <sstream>
-#include <utility>
-#include <climits>
 #include <cstring>
-#include <fstream>
-#include <iostream>
+#include <vector>
 #include <algorithm>
-#include <functional>
-const int MAX_CONVEX = 500;
-const int MAX_ITEM = 500;
-struct point {
-    double x,y;
-    void in() {
-        scanf("%lf%lf",&x,&y);
-    }
-    point (double x=0,double y=0):x(x),y(y){}
+using std::vector;
+using std::sort;
+#define sqr(x) (x * x)
+const double eps = 1e-8;
+struct Point {
+	double x, y;
+	void in() {
+		scanf("%lf%lf", &x, &y);
+	}
+	void print() {
+		printf("%.2lf %.2lf\n", x, y);
+	}
+	Point(double x = 0, double y = 0) : x(x), y(y) {
+	}
 };
-struct seg {
-    point s, e;
-    seg(point s, point e) : s(s) , e(e) {}
+struct Seg {
+	Point s, e;
 };
-typedef point Vector;
-inline Vector operator + (const Vector &a, const Vector &b) {
-    return Vector(a.x + b.x, a.y + b.y);
+struct Line {
+	double a, b, c;
+};
+struct Cir {
+	Point ct;
+	double r;
+	void in() {
+		ct.in();
+		scanf("%lf", &r);
+	}
+};
+typedef Point Vector;
+
+int n;
+Cir circle[25];
+vector<Point> Points;
+double D[1010];
+bool deleted[1010];
+double dis[1010][1010];
+
+Vector operator + (const Vector &a, const Vector &b) {
+	return Vector(a.x + b.x, a.y + b.y);
 }
-inline Vector operator - (const Vector &a, const Vector &b) {
-    return Vector(a.x - b.x, a.y - b.y);
+Vector operator - (const Vector &a, Vector &b) {
+	return Point ( (a.x - b.x) , (a.y - b.y) );
 }
-inline Vector operator * (const Vector &a, double t) {
+Vector operator * (const Vector &a, double t) {
     return Vector(a.x * t, a.y * t);
 }
-inline Vector operator / (const Vector &a, double p) {
-    return Vector(a.x / p, a.y / p);
+Vector operator / (const Vector &a, double p) {
+	return Vector(a.x / p, a.y / p);
 }
-inline int sgn(double x,double eps=1e-8) {
-    return x < -eps ? -1 : x > eps;
+int sgn(double x, double eps = 1e-8) {
+	return x < -eps ? -1 : x > eps;
 }
-bool operator < (const point &a, const point &b) {
-    return sgn(a.x - b.x) < 0 || sgn(a.x - b.x) == 0 && sgn(a.y - b.y) < 0;
+bool operator < (const Point &a, const Point &b) {
+	return sgn(a.x - b.x) < 0 || sgn(a.x - b.x) == 0 && sgn(a.y - b.y) < 0;
 }
-bool operator == (const point &a, const point &b) {
-    return sgn(a.x - b.x) == 0 && sgn(a.y - b.y) == 0;
+bool operator == (const Point &a, const Point &b) {
+	return sgn(a.x - b.x) == 0 && sgn(a.y - b.y) == 0;
 }
-inline double cross(Vector a, Vector b) {
-    return a.x * b.y - a.y * b.x;
+double dot(const Vector &a, const Vector &b) {
+	return a.x * b.x + a.y * b.y;
 }
-inline double cross(point o, point a, point b) {
-    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+double cross(Vector a, Vector b) {
+	return a.x * b.y - a.y * b.x;
 }
-inline double dot(Vector a, Vector b) {
-    return a.x * b.x + a.y * b.y;
+double cross(Point a, Point b, Point c) {
+	return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
 }
-bool intersect(point P, Vector v, point Q, Vector w, point &p) {
+bool same_dir(Vector a, Vector b) {							// 向量是否同向
+    return sgn(a.x * b.y - b.x * a.y) == 0 && sgn(a.x * b.x) >= 0 && sgn(a.y * b.y) >= 0;
+}
+bool dot_on_seg(Point p, Seg L) {
+	return sgn(cross(L.s - p, L.e - p)) == 0 && sgn(dot(L.s - p, L.e - p)) <= 0;
+}
+double ppdis(Point a, Point b) {								// 点点距离
+    return sqrt( (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) );
+}
+double pldis(Point p,Point l1,Point l2){						// 点线距离
+	return fabs(cross(p,l1,l2))/ppdis(l1,l2);
+}
+double pldis(Point p, Line ln) {									// 点线距离
+    return fabs(ln.a * p.x + ln.b * p.y + ln.c) / sqrt(ln.a * ln.a + ln.b * ln.b);
+}
+bool point_in_circle(Point &a, Cir cr) {
+	return sgn(ppdis(a, cr.ct) - cr.r) <= 0;
+}
+bool intersect(Point P, Vector v, Point Q, Vector w, Point &p) {
     Vector u = P - Q;
     if(sgn(cross(v, w)) == 0) return false;
     double t = cross(w, u) / cross(v, w);
     p = P + v * t;
     return true;
 }
-bool dotOnseg(point p,seg L)  {
-    return sgn(cross(L.s - p, L.e - p)) == 0 && sgn(dot(L.s - p, L.e - p)) <= 0;
-}
-//bool segcross(point a, point b, point c, point d)  {  
-//    int d1,d2,d3,d4;  
-//    d1=sgn(cross(a,b,c));  
-//    d2=sgn(cross(a,b,d));  
-//    d3=sgn(cross(c,d,a));  
-//    d4=sgn(cross(c,d,b));  
-//    if((d1^d2)==-2&&(d3^d4)==-2)  
-//        return true;  
-//    return false;  
-//}  
-bool segcross(point p1, point p2, point q1, point q2) {
+bool segcross(Point p1, Point p2, Point q1, Point q2) {
     return (
             std::min(p1.x, p2.x) <= std::max(q1.x, q2.x) &&
             std::min(q1.x, q2.x) <= std::max(p1.x, p2.x) &&
@@ -97,124 +106,49 @@ bool segcross(point p1, point p2, point q1, point q2) {
             cross(q1, p2, p1) * cross(q2, p2, p1) <= 0  /* 叉积相乘判方向 */
            );
 }
-
-
-
-#include <cstdio>
-#include <cstring>
-#include <cmath>
-#include <algorithm>
-using namespace std;
-const double eps = 1e-8;
-const double pi = acos(-1.0);
-
-struct Point {
-    double x, y;
-    Point operator - (const Point& t) const {
-        Point tmp;
-        tmp.x = x - t.x;
-        tmp.y = y - t.y;
-        return tmp;
+bool line_inst(Line l1, Line l2, Point &p) {						// 直线相交 
+    double d = l1.a * l2.b - l2.a * l1.b;
+    if ( sgn(d) == 0){
+    	return false;
     }
-    Point operator + (const Point& t) const {
-        Point tmp;
-        tmp.x = x + t.x;
-        tmp.y = y + t.y;
-        return tmp;
-    }
-    bool operator == (const Point& t) const {
-        return fabs(x-t.x) < eps && fabs(y-t.y) < eps;
-    }
-}GP; 
-struct Cir {
-	Point ct;
-    double r;
-};
-
-inline double Cross(Point a, Point b, Point c) {					// 叉积
-	return (b.x-a.x)*(c.y-a.y) - (c.x-a.x)*(b.y-a.y); 
-}
-inline double PPdis(Point a, Point b) {								// 点点距离
-    return sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y));
-}
-inline double PLdis(Point p,Point l1,Point l2){						// 点线距离
-	return fabs(Cross(p,l1,l2))/PPdis(l1,l2);
-}
-inline bool same_dir(Point a, Point b) {							// 向量是否同向
-    return fabs(a.x*b.y-b.x*a.y) < eps && a.x*b.x > -eps && a.y*b.y > -eps;
-}
-bool dotOnSeg(Point p, Point s, Point e) {							// 点是否在线段上
-    if ( p == s || p == e )		// 看具体情况端点是否合法
-        return true;
-    return fabs(Cross(p,s,e)) < eps && 
-        (p.x-s.x)*(p.x-e.x)<eps && (p.y-s.y)*(p.y-e.y)<eps;
-}
-bool Intersect(Point p1, Point p2, Point p3, Point p4, Point& p) {	// 直线相交
-	double a1, b1, c1, a2, b2, c2, d;
-	a1 = p1.y - p2.y; b1 = p2.x - p1.x; c1 = p1.x*p2.y - p2.x*p1.y;
-	a2 = p3.y - p4.y; b2 = p4.x - p3.x; c2 = p3.x*p4.y - p4.x*p3.y;
-	d = a1*b2 - a2*b1;
-	if ( fabs(d) < eps )	return false;
-	p.x = (-c1*b2 + c2*b1) / d;
-	p.y = (-a1*c2 + a2*c1) / d;
-	return true;
-}
-
-
-/***** ax+by+c=0 ***********************************************************************/
-struct Line {
-    double a, b, c;
-};
-double PL_dis(Point p, Line ln) {									// 点线距离
-    return fabs(ln.a*p.x+ln.b*p.y+ln.c)/sqrt(ln.a*ln.a+ln.b*ln.b);
-}
-Line Turn(Point s, Point e) {										// 线段转直线表达式
-    Line ln;
-    ln.a = s.y - e.y;
-    ln.b = e.x - s.x;
-    ln.c = s.x*e.y - e.x*s.y;
-    return ln;
-}
-bool Line_Inst(Line l1, Line l2, Point &p) {						// 直线相交 
-    double d = l1.a*l2.b - l2.a*l1.b;
-    if ( fabs(d) < eps )    return false;
-    p.x = (-l1.c*l2.b + l2.c*l1.b) / d;
-    p.y = (-l1.a*l2.c + l2.a*l1.c) / d;
+    p.x = (-l1.c * l2.b + l2.c * l1.b) / d;
+    p.y = (-l1.a * l2.c + l2.a * l1.c) / d;
     return true; 
 }
-bool Cir_Line(Point ct, double r, Line ln, Point& t1, Point& t2) {   // 直线与圆交点
-    if ( PL_dis(ct, ln) > r + eps )
-        return false;
-    ln.c += ln.a*ct.x + ln.b*ct.y;
-    if ( fabs(ln.b) < eps ) {
-        t1.x = t2.x = -ln.c/ln.a;
-        t1.y = sqrt(r*r - ln.c*ln.c/ln.a/ln.a);
-        t2.y = -t1.y;
-    } 
-    else {
-        double A, B, C;
-        A = ln.a*ln.a + ln.b*ln.b;
-        B = 2.0*ln.a*ln.c;
-        C = ln.c*ln.c - ln.b*ln.b*r*r;
-        t1.x = (-B - sqrt(B*B - 4.0*A*C))/2.0/A;
-        t2.x = (-B + sqrt(B*B - 4.0*A*C))/2.0/A;
-        t1.y = -t1.x*ln.a/ln.b - ln.c/ln.b;
-        t2.y = -t2.x*ln.a/ln.b - ln.c/ln.b;
-    }
-    t1 = t1 + ct;
-    t2 = t2 + ct;
-    return true;
+Line turn(Point s, Point e) {
+	Line ln;
+	ln.a = s.y - e.y;
+	ln.b = e.x - s.x;
+	ln.c = s.x * e.y - e.x * s.y;
+	return ln;
 }
-bool Cir_Cir(Point c1, double r1, Point c2, double r2, Point& t1, Point& t2) {  // 圆与圆交点
-	double d = PPdis(c1, c2);
-	if ( d > r1+r2+eps || d < fabs(r1-r2)-eps )
+bool cir_line(Point ct, double r, Point l1, Point l2, Point& p1, Point& p2) {// 直线与圆
+	if ( sgn (pldis(ct, l1, l2) - r ) > 0)
 		return false;
-    Line ln;
-    ln.a = 2*(c1.x - c2.x);
-    ln.b = 2*(c1.y - c2.y);
-    ln.c = r1*r1 - r2*r2 - (c1.x*c1.x+c1.y*c1.y-c2.x*c2.x-c2.y*c2.y);
-    Cir_Line(c1, r1, ln, t1, t2);
-    return true;
+	double a1, a2, b1, b2, A, B, C, t1, t2;
+	a1 = l2.x - l1.x; a2 = l2.y - l1.y;
+	b1 = l1.x - ct.x; b2 = l1.y - ct.y;
+	A = a1 * a1 + a2 * a2;
+	B = (a1 * b1 + a2 * b2) * 2;
+	C = b1 * b1 + b2 * b2 - r * r;
+	t1 = (-B - sqrt(B * B - 4.0 * A * C)) / 2.0 / A;
+	t2 = (-B + sqrt(B * B - 4.0 * A * C)) / 2.0 / A;
+	p1.x = l1.x + a1 * t1; p1.y = l1.y + a2 * t1;
+	p2.x = l1.x + a1 * t2; p2.y = l1.y + a2 * t2;
+	return true;
+}
+bool cir_cir(Point c1, double r1, Point c2, double r2, Point& p1, Point& p2) {// 圆与圆
+	double d = ppdis(c1, c2);
+	if ( sgn(d - r1 - r2) > 0|| sgn (d - fabs(r1 - r2) ) > 0 )
+		return false;
+	Point u, v;
+	double t = (1 + (r1 * r1 - r2 * r2) / ppdis(c1, c2) / ppdis(c1, c2)) / 2;
+	u.x = c1.x + (c2.x - c1.x) * t;
+	u.y = c1.y + (c2.y - c1.y) * t;
+	v.x = u.x + c1.y - c2.y;
+	v.y = u.y + c2.x - c1.x;
+	cir_line(c1, r1, u, v, p1, p2);
+	return true;
 }
 /***************************************************************************************/
 
