@@ -245,7 +245,7 @@ double Solve(Ball a, Ball b) {
 
 
 /***** 多边形 **************************************************************************/
-Point GravityCenter(Point* p, int n) {								// 多边形重心
+Point gravity_center(Point* p, int n) {								// 多边形重心
 	int i;
 	double A=0, a;
 	Point t;
@@ -261,6 +261,7 @@ Point GravityCenter(Point* p, int n) {								// 多边形重心
 	t.y /= A*3;
 	return t;
 }
+
 bool point_in_polygon(Point o, Point* p, int n) {					// 点是否在多边形内
 	int i, t;
 	Point a, b;
