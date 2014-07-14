@@ -1,12 +1,10 @@
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-#include <vector>
-#include <algorithm>
-using std::vector;
-using std::sort;
-#define sqr(x) (x * x)
-const double eps = 1e-8;
+#define sqr(x) ((x) * (x))
+const double eps = 1e-6;
+struct Point;
+typedef Point Vector;
+inline int sgn(double x) {
+	return x < -eps ? -1 : x > eps;
+}
 struct Point {
 	double x, y;
 	void in() {
@@ -17,7 +15,38 @@ struct Point {
 	}
 	Point(double x = 0, double y = 0) : x(x), y(y) {
 	}
+        inline Vector rotate(double ang) {
+                return Vector(x * cos(ang) - y * sin(ang), x * sin(ang) + y * cos(ang));
+        }
+        inline double dot(const Vector &a) {
+                return x * a.x + y * a.y;
+        }
+        inline bool operator == (const Point &a) const {
+                return sgn(x - a.x) == 0 && sgn(y - a.y) == 0;
+        }
+        inline bool operator < (const Point &a) const {
+                return sgn(x - a.x) < 0 || sgn(x - a.x) == 0 && sgn(y - a.y) < 0;
+        }
+        inline Vector operator + (const Vector &a) const {
+                return Vector(x + a.x, y + a.y);
+        }
+        inline Vector operator - (const Vector &a) const {
+                return Vector(x - a.x, y - a.y);
+        }
+        inline double operator * (const Vector &a) const {
+                return x * a.y - y * a.x;
+        }
+        inline Vector operator * (double t) const {
+                return Vector(x * t, y * t);
+        }
+        inline Vector operator / (double t) {
+                return Vector(x / t, y / t);
+        }
+        inline double vlen() {
+                return sqrt(x * x + y * y);
+        }
 };
+
 struct Seg {
 	Point s, e;
 };
@@ -32,34 +61,9 @@ struct Cir {
 		scanf("%lf", &r);
 	}
 };
-typedef Point Vector;
 
-Vector operator + (const Vector &a, const Vector &b) {
-	return Vector(a.x + b.x, a.y + b.y);
-}
-Vector operator - (const Vector &a, Vector &b) {
-	return Point ( (a.x - b.x) , (a.y - b.y) );
-}
-Vector operator * (const Vector &a, double t) {
-	return Vector(a.x * t, a.y * t);
-}
-Vector operator / (const Vector &a, double p) {
-	return Vector(a.x / p, a.y / p);
-}
-int sgn(double x, double eps = 1e-8) {
-	return x < -eps ? -1 : x > eps;
-}
-bool operator < (const Point &a, const Point &b) {
-	return sgn(a.x - b.x) < 0 || sgn(a.x - b.x) == 0 && sgn(a.y - b.y) < 0;
-}
-bool operator == (const Point &a, const Point &b) {
-	return sgn(a.x - b.x) == 0 && sgn(a.y - b.y) == 0;
-}
 double dot(const Vector &a, const Vector &b) {
 	return a.x * b.x + a.y * b.y;
-}
-double cross(Vector a, Vector b) {
-	return a.x * b.y - a.y * b.x;
 }
 double cross(Point a, Point b, Point c) {
 	return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
