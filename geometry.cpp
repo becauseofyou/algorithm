@@ -1,3 +1,29 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <climits>
+#include <deque>
+#include <cmath>
+#include <queue>
+#include <stack>
+#include <list>
+#include <map>
+#include <set>
+#include <utility>
+#include <sstream>
+#include <complex>
+#include <string>
+#include <vector>
+#include <cstdlib>
+#include <cstdio>
+#include <ctime>
+#include <bitset>
+#include <functional>
+#include <algorithm>
+typedef long long LL;
+#define for_each(it, container)  for(typeof(container.begin()) it = container.begin(); it != container.end(); ++it)
+#define mp std::make_pair
+#define pii std::pair<int, int>
 #define sqr(x) ((x) * (x))
 const double eps = 1e-6;
 struct Point;
@@ -45,7 +71,12 @@ struct Point {
         inline double vlen() {
                 return sqrt(x * x + y * y);
         }
+        inline double dot(const Point &cmp) const {
+                return x * cmp.x + y * cmp.y;
+        }
 };
+
+
 
 struct Seg {
 	Point s, e;
@@ -62,9 +93,7 @@ struct Cir {
 	}
 };
 
-double dot(const Vector &a, const Vector &b) {
-	return a.x * b.x + a.y * b.y;
-}
+
 double cross(Point a, Point b, Point c) {
 	return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
 }
