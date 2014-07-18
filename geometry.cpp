@@ -148,6 +148,14 @@ Line turn(Point s, Point e) {
 	ln.c = s.x * e.y - e.x * s.y;
 	return ln;
 }
+//圆的折射，输入圆心，p->inter是射线，inter是圆上一点， ref是折射率，返回折射向量
+Vector reflect_vector(Point center, Point p, Point inter, double ref) {
+        Vector p1 = inter - p, p2 = center - inter;
+        double sinang = p1 * p2 / (p1.vlen() * p2.vlen()) / ref;
+        double ang = asin(fabs(sinang));
+        return sinang > eps ? p2.rotate(-ang) : p2.rotate(ang);
+}
+
 bool cir_line(Point ct, double r, Point l1, Point l2, Point& p1, Point& p2) {// 直线与圆
 	if ( sgn (pldis(ct, l1, l2) - r ) > 0)
 		return false;
