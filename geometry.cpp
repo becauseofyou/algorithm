@@ -71,9 +71,6 @@ struct Point {
         inline double vlen() {
                 return sqrt(x * x + y * y);
         }
-        inline double dot(const Point &cmp) const {
-                return x * cmp.x + y * cmp.y;
-        }
 };
 
 
