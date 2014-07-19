@@ -90,6 +90,12 @@ struct Cir {
 	}
 };
 
+inline bool cmpyx(const Point &a, const Point &b) {
+        if(a.y != b.y) {
+                return a.y < b.y;
+        }
+        return a.x < b.x;
+}
 
 double cross(Point a, Point b, Point c) {
 	return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
@@ -129,15 +135,55 @@ bool segcross(Point p1, Point p2, Point q1, Point q2) {
 			cross(q1, p2, p1) * cross(q2, p2, p1) <= 0  /* 叉积相乘判方向 */
 	       );
 }
-bool line_inst(Line l1, Line l2, Point &p) {						// 直线相交 
-	double d = l1.a * l2.b - l2.a * l1.b;
-	if ( sgn(d) == 0){
-		return false;
-	}
-	p.x = (-l1.c * l2.b + l2.c * l1.b) / d;
-	p.y = (-l1.a * l2.c + l2.a * l1.c) / d;
-	return true; 
-}
+// 水平序, 注意两倍空间
+struct Convex_Hull {
+        static const int N = 100010;
+        Point p[2 * N];
+        int n;
+        void init() {
+                n = 0;
+        }
+        void in() {
+                p[n].in();
+                n++;
+        }
+        inline void push_back(const Point &np) {
+                p[n++] = np;
+        }
+        void gao() {
+                if(n < 3) {
+                        return ;
+                }
+                std::sort(p, p + n);
+                std::copy(p, p + n - 1, p + n);
+                std::reverse(p + n, p + 2 * n - 1);
+                int m = 0, top = 0;
+                for(int i = 0; i < 2 * n - 1; i++) {
+                        while(top >= m + 2 && sgn((p[top - 1] - p[top - 2]) * (p[i] - p[top - 2])) <= 0) {
+                                top --;
+                        }
+                        p[top++] = p[i];
+                        if(i == n - 1) {
+                                m = top - 1;
+                        }
+                }
+                n = top - 1;
+        }
+        void print() {
+                for(int i = 0; i < n; i++) {
+                        p[i].print();
+                }
+        }
+        double get_area() {
+                double ret = 0;
+                Point ori(0, 0);
+                for(int i = 0; i < n; i++) {
+                        ret += (p[i] - ori) * (p[i + 1] - ori);
+                }
+                return fabs(ret) / 2;
+        }
+}convex;
+
 Line turn(Point s, Point e) {
 	Line ln;
 	ln.a = s.y - e.y;
