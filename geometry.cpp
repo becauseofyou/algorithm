@@ -135,6 +135,7 @@ bool segcross(Point p1, Point p2, Point q1, Point q2) {
 			cross(q1, p2, p1) * cross(q2, p2, p1) <= 0  /* 叉积相乘判方向 */
 	       );
 }
+
 // 水平序, 注意两倍空间
 struct Convex_Hull {
         static const int N = 100010;
@@ -181,6 +182,27 @@ struct Convex_Hull {
                         ret += (p[i] - ori) * (p[i + 1] - ori);
                 }
                 return fabs(ret) / 2;
+        }
+        double rotate() {
+                if(n == 2) {
+                        return (p[0] - p[1]).dot(p[0] - p[1]);
+                }
+                int i = 0, j = 0;
+                for(int k = 0; k < n; k++) {
+                        if(!(p[k] < p[i])) i = k;
+                        if(!(p[j] < p[k])) j = k;
+                }
+                double ret = 0;
+                int si = i, sj = j;
+                while(i != sj || j != si) {
+                        ret = std::max(ret, (p[i]-p[j]).dot(p[i]-p[j]));
+                        if(sgn ( (p[(i + 1) % n] - p[i]) * (p[(j + 1) % n] - p[j]) ) < 0) {
+                                i = (i + 1) % n;
+                        } else {
+                                j = (j + 1) % n;
+                        }
+                }
+                return ret;
         }
 }convex;
 
