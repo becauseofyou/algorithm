@@ -107,7 +107,7 @@ bool dot_on_seg(Point p, Seg L) {
 	return sgn(cross(L.s - p, L.e - p)) == 0 && sgn(dot(L.s - p, L.e - p)) <= 0;
 }
 double ppdis(Point a, Point b) {								// 点点距离
-	return sqrt( (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) );
+	return sqrt((a - b).dot(a - b));
 }
 double pldis(Point p,Point l1,Point l2){						// 点线距离
 	return fabs(cross(p,l1,l2))/ppdis(l1,l2);
