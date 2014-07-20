@@ -82,13 +82,18 @@ struct Line {
 	double a, b, c;
 };
 struct Cir {
-	Point ct;
-	double r;
-	void in() {
-		ct.in();
-		scanf("%lf", &r);
-	}
+        Point ct;
+        double r;
+        void in() {
+                ct.in();
+                scanf("%lf", &r);
+        }
+        Point get_point(double ang) {
+                return Point(ct.x + cos(ang) * r, ct.y + sin(ang) * r);
+        }
+
 };
+
 
 inline bool cmpyx(const Point &a, const Point &b) {
         if(a.y != b.y) {
