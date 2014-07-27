@@ -21,17 +21,19 @@
 #include <functional>
 #include <algorithm>
 typedef long long LL;
-#define for_each(it, container)  for(typeof(container.begin()) it = container.begin(); it != container.end(); ++it)
+#define for_each(it, container)  for(__typeof(container.begin()) it = container.begin(); it != container.end(); ++it)
 #define mp std::make_pair
 #define pii std::pair<int, int>
 #define sqr(x) ((x) * (x))
-const double eps = 1e-6;
+const double eps = 1e-8;
+int sgn(double x) 
+{
+        return x < -eps ? -1 : x > eps;
+}
 struct Point;
 typedef Point Vector;
-inline int sgn(double x) {
-	return x < -eps ? -1 : x > eps;
-}
-struct Point {
+struct Point 
+{
 	double x, y;
 	void in() {
 		scanf("%lf%lf", &x, &y);
@@ -51,7 +53,7 @@ struct Point {
                 return sgn(x - a.x) == 0 && sgn(y - a.y) == 0;
         }
         inline bool operator < (const Point &a) const {
-                return sgn(x - a.x) < 0 || sgn(x - a.x) == 0 && sgn(y - a.y) < 0;
+                return sgn(x - a.x) < 0 ¦¦ sgn(x - a.x) == 0 && sgn(y - a.y) < 0;
         }
         inline Vector operator + (const Vector &a) const {
                 return Vector(x + a.x, y + a.y);
@@ -74,27 +76,6 @@ struct Point {
 };
 
 
-
-struct Seg {
-	Point s, e;
-};
-struct Line {
-	double a, b, c;
-};
-struct Cir {
-        Point ct;
-        double r;
-        void in() {
-                ct.in();
-                scanf("%lf", &r);
-        }
-        Point get_point(double ang) {
-                return Point(ct.x + cos(ang) * r, ct.y + sin(ang) * r);
-        }
-
-};
-
-
 inline bool cmpyx(const Point &a, const Point &b) {
         if(a.y != b.y) {
                 return a.y < b.y;
@@ -108,8 +89,9 @@ double cross(Point a, Point b, Point c) {
 bool same_dir(Vector a, Vector b) {							// 向量是否同向
 	return sgn(a.x * b.y - b.x * a.y) == 0 && sgn(a.x * b.x) >= 0 && sgn(a.y * b.y) >= 0;
 }
-bool dot_on_seg(Point p, Seg L) {
-	return sgn(cross(L.s - p, L.e - p)) == 0 && sgn(dot(L.s - p, L.e - p)) <= 0;
+bool dot_on_seg(Point p, Seg L) 
+{
+        return sgn((L.s - p) * (L.e - p)) == 0 && sgn((L.s - p).dot(L.e - p)) <= 0;
 }
 double ppdis(Point a, Point b) {								// 点点距离
 	return sqrt((a - b).dot(a - b));
@@ -123,12 +105,13 @@ double pldis(Point p, Line ln) {									// 点线距离
 bool point_in_circle(Point &a, Cir cr) {
 	return sgn(ppdis(a, cr.ct) - cr.r) <= 0;
 }
-bool intersect(Point P, Vector v, Point Q, Vector w, Point &p) {
-	Vector u = P - Q;
-	if(sgn(cross(v, w)) == 0) return false;
-	double t = cross(w, u) / cross(v, w);
-	p = P + v * t;
-	return true;
+bool intersect(Point P, Vector v, Point Q, Vector w, Point &ret) 
+{
+        Vector u = P - Q;
+        if(sgn(v * w) == 0) return false;
+        double t = w * u / (v * w);
+        ret = P + v * t;
+        return true;
 }
 bool segcross(Point p1, Point p2, Point q1, Point q2) {
 	return (
@@ -373,24 +356,27 @@ Point gravity_center(Point* p, int n) {								// 多边形重心
 	return t;
 }
 
-bool point_in_polygon(Point o, Point* p, int n) {					// 点是否在多边形内
-	int i, t;
-	Point a, b;
-	p[n] = p[0];
-	for (i=0; i < n; i++) {
-		if ( dotOnSeg(o, p[i], p[i+1]) )
-			return true;
-	}
-	t = 0;
-	for (i=0; i < n; i++) {
-		a = p[i]; b = p[i+1];
-		if ( a.y > b.y ) {
-			Point tmp = a; a = b; b = tmp;
-		}
-		if ( Cross(o, a, b) < -eps && a.y < o.y-eps && o.y < b.y+eps )
-			t++;
-	}
-	return t&1;
+bool point_in_polygon(Point o, Point *p, int n)
+{
+        int t;
+        Point a, b;
+        p[n] = p[0];
+        for(int i = 0; i < n; i++) {
+                if(dot_on_seg(o, Seg(p[i], p[i + 1]))) {
+                        return true;
+                }
+        }
+        t = 0;
+        for(int i = 0; i < n; i++) {
+                a = p[i]; b = p[i + 1];
+                if(a.y > b.y) {
+                        std::swap(a, b);
+                }
+                if(sgn((a - o) * (b - o)) < 0 && sgn(a.y - o.y) < 0 && sgn(o.y - b.y) <= 0) {
+                        t++;
+                }
+        }
+        return t & 1;
 }
 /***************************************************************************************/
 
