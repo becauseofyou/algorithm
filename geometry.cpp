@@ -76,33 +76,40 @@ struct Point
 };
 
 
-inline bool cmpyx(const Point &a, const Point &b) {
+inline bool cmpyx(const Point &a, const Point &b) 
+{
         if(a.y != b.y) {
                 return a.y < b.y;
         }
         return a.x < b.x;
 }
 
-double cross(Point a, Point b, Point c) {
+double cross(Point a, Point b, Point c) 
+{
 	return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
 }
-bool same_dir(Vector a, Vector b) {							// 向量是否同向
+bool same_dir(Vector a, Vector b) 
+{						
 	return sgn(a.x * b.y - b.x * a.y) == 0 && sgn(a.x * b.x) >= 0 && sgn(a.y * b.y) >= 0;
 }
 bool dot_on_seg(Point p, Seg L) 
 {
         return sgn((L.s - p) * (L.e - p)) == 0 && sgn((L.s - p).dot(L.e - p)) <= 0;
 }
-double ppdis(Point a, Point b) {								// 点点距离
+double ppdis(Point a, Point b) 
+{							
 	return sqrt((a - b).dot(a - b));
 }
-double pldis(Point p,Point l1,Point l2){						// 点线距离
+double pldis(Point p,Point l1,Point l2)
+{					
 	return fabs(cross(p,l1,l2))/ppdis(l1,l2);
 }
-double pldis(Point p, Line ln) {									// 点线距离
+double pldis(Point p, Line ln) 
+{								
 	return fabs(ln.a * p.x + ln.b * p.y + ln.c) / sqrt(ln.a * ln.a + ln.b * ln.b);
 }
-bool point_in_circle(Point &a, Cir cr) {
+bool point_in_circle(Point &a, Cir cr) 
+{
 	return sgn(ppdis(a, cr.ct) - cr.r) <= 0;
 }
 bool intersect(Point P, Vector v, Point Q, Vector w, Point &ret) 
@@ -113,7 +120,8 @@ bool intersect(Point P, Vector v, Point Q, Vector w, Point &ret)
         ret = P + v * t;
         return true;
 }
-bool segcross(Point p1, Point p2, Point q1, Point q2) {
+bool segcross(Point p1, Point p2, Point q1, Point q2) 
+{
 	return (
 			std::min(p1.x, p2.x) <= std::max(q1.x, q2.x) &&
 			std::min(q1.x, q2.x) <= std::max(p1.x, p2.x) &&
@@ -125,7 +133,8 @@ bool segcross(Point p1, Point p2, Point q1, Point q2) {
 }
 
 // 水平序, 注意两倍空间
-struct Convex_Hull {
+struct Convex_Hull 
+{
         static const int N = 100010;
         Point p[2 * N];
         int n;
@@ -194,7 +203,8 @@ struct Convex_Hull {
         }
 }convex;
 
-Line turn(Point s, Point e) {
+Line turn(Point s, Point e) 
+{
 	Line ln;
 	ln.a = s.y - e.y;
 	ln.b = e.x - s.x;
@@ -202,14 +212,16 @@ Line turn(Point s, Point e) {
 	return ln;
 }
 //圆的折射，输入圆心，p->inter是射线，inter是圆上一点， ref是折射率，返回折射向量
-Vector reflect_vector(Point center, Point p, Point inter, double ref) {
+Vector reflect_vector(Point center, Point p, Point inter, double ref) 
+{
         Vector p1 = inter - p, p2 = center - inter;
         double sinang = p1 * p2 / (p1.vlen() * p2.vlen()) / ref;
         double ang = asin(fabs(sinang));
         return sinang > eps ? p2.rotate(-ang) : p2.rotate(ang);
 }
 
-bool cir_line(Point ct, double r, Point l1, Point l2, Point& p1, Point& p2) {// 直线与圆
+bool cir_line(Point ct, double r, Point l1, Point l2, Point& p1, Point& p2) 
+{
 	if ( sgn (pldis(ct, l1, l2) - r ) > 0)
 		return false;
 	double a1, a2, b1, b2, A, B, C, t1, t2;
@@ -224,7 +236,8 @@ bool cir_line(Point ct, double r, Point l1, Point l2, Point& p1, Point& p2) {// 
 	p2.x = l1.x + a1 * t2; p2.y = l1.y + a2 * t2;
 	return true;
 }
-bool cir_cir(Point c1, double r1, Point c2, double r2, Point& p1, Point& p2) {// 圆与圆
+bool cir_cir(Point c1, double r1, Point c2, double r2, Point& p1, Point& p2) 
+{
 	double d = ppdis(c1, c2);
 	if ( sgn(d - r1 - r2) > 0|| sgn (d - fabs(r1 - r2) ) < 0 )
 		return false;
@@ -266,34 +279,7 @@ bool Circumcenter(Point& u, Point& v, Point& w, Point& p) {			// 外接圆心
 
 
 /***** 圆 ******************************************************************************/
-bool cir_line(Point ct, double r, Point l1, Point l2, Point& p1, Point& p2) {// 直线与圆
-	if ( PLdis(ct, l1, l2) > r + eps )
-		return false;
-	double a1, a2, b1, b2, A, B, C, t1, t2;
-	a1 = l2.x - l1.x; a2 = l2.y - l1.y;
-	b1 = l1.x - ct.x; b2 = l1.y - ct.y;
-	A = a1*a1 + a2*a2;
-	B = (a1*b1 + a2*b2)*2;
-	C = b1*b1 + b2*b2 - r*r;
-	t1 = (-B - sqrt(B*B - 4.0*A*C))/2.0/A;
-	t2 = (-B + sqrt(B*B - 4.0*A*C))/2.0/A;
-	p1.x = l1.x + a1*t1; p1.y = l1.y + a2*t1;
-	p2.x = l1.x + a1*t2; p2.y = l1.y + a2*t2;
-	return true;
-}
-bool cir_cir(Point c1, double r1, Point c2, double r2, Point& p1, Point& p2) {// 圆与圆
-	double d = PPdis(c1, c2);
-	if ( d > r1+r2+eps || d < fabs(r1-r2)-eps )
-		return false;
-	Point u, v;
-	double t=(1 + (r1*r1-r2*r2)/PPdis(c1,c2)/PPdis(c1,c2))/2;
-	u.x = c1.x + (c2.x-c1.x)*t;
-	u.y = c1.y + (c2.y-c1.y)*t;
-	v.x = u.x + c1.y - c2.y;
-	v.y = u.y + c2.x - c1.x;
-	cir_line(c1, r1, u, v, p1, p2);
-	return true;
-}
+
 double cir_area_inst(Point c1, double r1, Point c2, double r2) {			// 两圆面积交
 	double a1, a2, d, ret;
 	d = sqrt((c1.x-c2.x)*(c1.x-c2.x)+(c1.y-c2.y)*(c1.y-c2.y));
