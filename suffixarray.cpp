@@ -3,10 +3,12 @@
 #include <algorithm>
 const int N = 300010;
 int sa[N],X[N],Y[N],b[N],a[N],h[N],r[N];
-bool comp(int *r,int a,int b,int le){
+bool comp(int *r,int a,int b,int le)
+{
         return r[a] == r[b] && r[a+le] == r[b+le];
 }
-void Sort(int *Rank,int *Id,int n,int m){
+void sort(int *Rank,int *Id,int n,int m)
+{
         std::fill(b,b+m,0);
         for(int i = n-1; i >= 0; i--) b[Rank[i]]++;
         for(int i = 1; i < m; i++) b[i] += b[i-1];
@@ -14,7 +16,8 @@ void Sort(int *Rank,int *Id,int n,int m){
         //之所以倒过来：如果第一关键字相同，应该把第二关键字大的排在后面
         //这里的Id[]已经是第二关键字从小到大的下标了
 }
-void calh(int n){
+void calh(int n)
+{
         for(int i = 1; i <= n; i++) r[sa[i]] = i;
         int height = 0;
         for(int i = 0; i < n; i++){
@@ -24,10 +27,11 @@ void calh(int n){
                 h[r[i]] = height;
         }
 }
-void suffix(int n,int m=500){
+void suffix(int n,int m=500)
+{
         int *Rank = X, *Id = Y, p = 1;
         for(int i = 0; i < n; i++) Rank[i] = a[i], Id[i] = i;
-        Sort(Rank,Id,n,m);
+        sort(Rank,Id,n,m);
         for(int j = 1; p < n; j <<= 1){
                 p = 0;
                 for(int i = n-j; i < n; i++) Id[p++] = i;
@@ -35,7 +39,7 @@ void suffix(int n,int m=500){
                 for(int i = 0; i < n; i++) if(sa[i] >= j) Id[p++] = sa[i] - j;
                 // Id[] 为第二关键字从小到大的下标 , Id[i]处的第二关键字小于 Id[i+1]处的第二关键字
                 // 即s[Id[i]+j] <= s[Id[i+1]+j]
-                Sort(Rank,Id,n,p);
+                sort(Rank,Id,n,p);
                 std::swap(Rank,Id);
                 Rank[sa[0]] = 0, p = 1;
                 for(int i = 1; i < n; i++)
@@ -44,4 +48,3 @@ void suffix(int n,int m=500){
         }
         calh(n-1);
 }
-
