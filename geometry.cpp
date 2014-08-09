@@ -75,6 +75,31 @@ struct Point
         }
 };
 
+struct Cir
+{
+        Point ct;
+        double r;
+        void in() {
+                ct.in();
+                scanf("%lf", &r);
+        }
+};
+struct Seg 
+{
+        Point s, e;
+        Seg() {
+        }
+        Seg(Point s, Point e): s(s), e(e) {
+        }
+        void in() {
+                s.in();
+                e.in();
+        }
+};
+struct Line
+{
+        int a, b, c;
+};
 
 inline bool cmpyx(const Point &a, const Point &b) 
 {
