@@ -145,6 +145,38 @@ bool intersect(Point P, Vector v, Point Q, Vector w, Point &ret)
         ret = P + v * t;
         return true;
 }
+Point intersect(Point P, Vector v, Point Q, Vector w)
+{
+        Point ret;
+        Vector u = P - Q;
+        if(sgn(v * w) == 0) return false;
+        double t = w * u / (v * w);
+        ret = P + v * t;
+        return ret;
+}
+//点到直线距离
+Point disptoline(Point p, Seg l)
+{
+        return fabs(cross(p, l.s, l.e)) / ppdis(l.s, l.e);
+}
+//点到直线的垂足(最近点)
+Point ptoline(Point p, Seg l)
+{
+        Point vec = l.s - l.e;
+        return intersect(p, vec.norm(), l.s, vec);
+}
+//点到线段的最近点
+Point ptoseg(Point p, Seg l)
+{
+        Point norm = (l.s - l.e).norm();
+        if(sgn(norm * (p - l.s)) * sgn(norm * (p - l.e)) > 0) {
+                double sa = ppdis(p, l.s);
+                double sb = ppdis(p, l.e);
+                return sgn(sa - sb) < 0 ? l.s : l.e;
+        }
+        return intersect(p, norm, l.s, l.e - l.s);
+}
+
 bool segcross(Point p1, Point p2, Point q1, Point q2) 
 {
 	return (
