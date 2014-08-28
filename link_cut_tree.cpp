@@ -9,21 +9,22 @@ struct Node
         Node* ch[2];
         Node* fa;
         int mi, val, rev;
-        inline bool isroot(){return fa==null¦¦fa->ch[0]!=this&&fa->ch[1]!=this;}
-        inline bool d(){return fa->ch[1]==this;}
+        inline int sgn(){return fa->ch[0]==this?0:fa->ch[1]==this?1:-1;}
         inline void setc(int s, Node* who){who->fa=this;ch[s]=who;}
         inline void rotate() {
-                bool f=d();
-                Node* y=fa; y->setc(f,ch[!f]),fa=y->fa;
-                if(!y->isroot()) fa->ch[y->d()]=this;
-                this->setc(!f,y),y->up();
+                int a=sgn(),b=fa->sgn(); 
+                Node* y=fa; y->setc(a,ch[!a]),fa=y->fa;
+                if(~b) fa->ch[b]=this;
+                this->setc(!a,y),y->up();
         }
-        void splay() {
-                for(go();!isroot();rotate()) 
-                        if(!fa->isroot())
-                                (fa->d()^d())?rotate():fa->rotate();
+        inline void splay() {
+                go();
+                for(int a,b;~(a=sgn());rotate()) 
+                        if(~(b=fa->sgn()))
+                                (a^b)?rotate():fa->rotate();
                 up();
         }
+
         inline void up() {
                 mi = std::min(ch[0]->mi, ch[1]->mi);
                 mi = std::min(mi, val);
@@ -51,7 +52,7 @@ struct Node
                 }
         }
         void go() {
-                if(!isroot()) fa->go();
+                if(~sgn()) fa->go();
                 push();
         }
 };
