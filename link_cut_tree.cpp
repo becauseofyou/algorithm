@@ -81,13 +81,15 @@ struct Link_Cut_Tree
         int ask(int a, int b) {
                 return ask(node + a, node + b);
         }
-        //切断u跟父亲节点之间的边
-        void cut(Node* u) {
+        void cut(int v) {
+                Node* u = node + v;
+                access(u);
                 u->splay();
-                u->ch[0]->fa = u->fa;
-                u->fa = u->ch[0] = null;
+                u->ch[0]->fa = null;
+                u->ch[0] = null;
                 u->up();
         }
+
         //切掉u跟v之间的边
         void cut(Node* u, Node* v) {
                 access(u), v->splay();
