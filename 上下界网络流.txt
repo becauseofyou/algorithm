@@ -1,0 +1,33 @@
+        最后再总结一下建图方法，方便现场赛可以快速的回忆起来。
+1：无源汇的可行流 ： 新建源点，汇点，M[i]为每个点进来的下界流减去出去的下界流，如果M[i]为正，由源点向改点建M[i]的边，反之，由该点向汇点建M[i]的边，原图中的边为每条边的上界建去下界。跑一遍最大流，每条边的流量加上下界流就是答案。
+2：有源汇的最大流： 从汇点向源点建一条容量为INF的边，用上面的方法判断是否有解，有解就再跑一遍从原图中源点到汇点的最大流
+3：有源汇的最小流：先跑一遍最大流，然后连上从汇点到源点的边，再跑一次最大流
+        SAP(ss,tt,tt+1);
+        add_edge(t,s,INF,0);
+        SAP(ss,tt,tt+1);
+        bool flag = false;
+        for(int i = head[ss];i!=-1;i=edge[i].next)
+        {
+            if(edge[i].c)
+            {
+                flag = true;
+                break;
+            }
+        }
+        if(flag)
+        {
+            puts("impossible");
+        }
+        else 
+        {
+            int ans = 0;
+            for(int i = head[t]; i != -1; i = edge[i].next)
+            {
+                if(edge[i].v == s )
+                {
+                    ans = edge[i^1].c;
+                    break;
+                }
+            }
+            printf("%d\n",ans);
+        }
