@@ -133,7 +133,7 @@ double pldis(Point p,Point l1,Point l2)
 {					
 	return fabs(cross(p,l1,l2))/ppdis(l1,l2);
 }
-double pldis(Point p, Line ln) 
+double pldis(Point p, Line ln)  
 {								
 	return fabs(ln.a * p.x + ln.b * p.y + ln.c) / sqrt(ln.a * ln.a + ln.b * ln.b);
 }
