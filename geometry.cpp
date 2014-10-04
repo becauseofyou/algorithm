@@ -262,6 +262,24 @@ struct Convex_Hull
                 }
                 return ret;
         }
+        bool in_convex(Point pt) {
+                if(sgn((p[1]-p[0])*(pt-p[0])) <= 0 || sgn((p[n-1]-p[0])*(pt-p[0])) >= 0) {
+                        return false;
+                }
+                int l = 1, r = n - 2, best = -1;
+                while(l <= r) {
+                        int mid = l + r >> 1;
+                        int f = sgn((p[mid]-p[0])*(pt-p[0]));
+                        if(f >= 0) {
+                                best = mid;
+                                l = mid + 1;
+                        } else {
+                                r = mid - 1;
+                        }
+                }
+                return     sgn((p[best+1]-p[best])*(pt-p[best])) > 0;
+        }
+
 }convex;
 
 Line turn(Point s, Point e) 
