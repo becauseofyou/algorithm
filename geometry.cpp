@@ -73,6 +73,10 @@ struct Point
         inline double vlen() {
                 return sqrt(x * x + y * y);
         }
+        inline Vector norm() {
+                return Point(-y, x);
+        }
+
 };
 
 struct Cir
