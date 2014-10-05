@@ -563,3 +563,57 @@ void Grahamag(Point *p, int &n) {									// 极角序
 	n = top;
 }
 /***************************************************************************************/
+
+//半平面交
+Point intersect(Seg s1, Seg s2)
+{
+        return intersect(s1.s, s1.e-s1.s, s2.s, s2.e-s2.s);
+}
+
+int ord[N], dq[N];
+Seg sg[N];  
+double at2[N];
+
+int cmp(int a, int b)
+{
+        if(sgn(at2[a]-at2[b]) != 0) {
+                return sgn(at2[a] - at2[b]) < 0;
+        }
+        return sgn((sg[a].e-sg[a].s)*(sg[b].e-sg[a].s)) < 0;
+}
+bool is_right(int a, int b, int c) 
+{
+        Point t;
+        t = intersect(sg[a], sg[b]);
+        return sgn((sg[c].e-sg[c].s)*(t-sg[c].s)) < 0;
+}
+int HPI(int n, std::vector<Point>&p) {
+        int i, j, l=1, r=2;
+        for(i = 0; i < n; i++) {
+                at2[i] = atan2(sg[i].e.y-sg[i].s.y, sg[i].e.x-sg[i].s.x);
+                ord[i] = i;
+        }
+        std::sort(ord, ord + n, cmp);
+        for(i=j=1; i < n; i++) if(sgn(at2[ord[i]]-at2[ord[i-1]]) > 0) {
+                ord[j++] = ord[i];
+        }
+        n = j;
+        p.clear();
+        dq[l] = ord[0];dq[r] = ord[1];
+        for(i=2; i < n; i++) {
+                for(; l < r && is_right(dq[r-1],dq[r],ord[i]); r--) {
+                        if(sgn(at2[ord[i]] - at2[dq[r-1]] - pi) >= 0) 
+                                return -1;
+                }
+                while(l < r && is_right(dq[l], dq[l+1], ord[i])) l++;
+                dq[++r] = ord[i];
+        }
+        while(l < r && is_right(dq[r-1], dq[r], dq[l])) r--;
+        while(l < r && is_right(dq[l], dq[l+1], dq[r])) l++;
+        dq[l-1] = dq[r]; p.resize(r-l+1);
+        for(int i = l; i <= r; i++) {
+                p[i-l]=intersect(sg[dq[i]], sg[dq[i-1]]);
+        }
+        return r - l + 1;
+}
+
