@@ -5,3 +5,31 @@ bool read (int &x) {
         x *= sign;
         return ~c;
 }
+double get_val()
+{
+    double  ret(0),sign(1);
+    int flag=0;
+    double tmp=0.1;
+    char c;
+    while((c=getchar())==' '||c=='\n'||c=='\r');
+    if(c=='-')
+        sign=-1;
+    else
+        ret=c-'0';
+    while((c=getchar())!=' '&&c!='\n'&&c!='\r')
+    {
+        if(c=='.')
+        {
+            flag=1;
+            continue;
+        }
+        if(!flag)
+        ret=ret*10+c-'0';
+        else 
+        {
+            ret+=(c-'0')*tmp;
+            tmp*=0.1;
+        }
+    }
+    return ret*sign;
+}
