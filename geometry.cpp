@@ -617,3 +617,302 @@ int HPI(int n, std::vector<Point>&p) {
         return r - l + 1;
 }
 
+
+//三维几何////////////////////////////////////////////////////////////
+struct Point;
+typedef double DB;
+typedef Point PT;
+#define op operator
+inline int sgn(DB x) {
+         return x < -eps ? -1 : x > eps;
+}
+struct Point {
+        DB x, y, z;
+        Point(DB x=0,DB y=0, DB z=0): x(x), y(y), z(z) {}
+        void in() {
+                scanf("%lf%lf%lf", &x, &y, &z);
+        }
+        void print() {
+                printf("%lf %lf %lf\n", x, y, z);
+        }
+        inline PT op * (const PT &t) const {
+                return PT(y * t.z - t.y * z, z * t.x - t.z * x, x * t.y - t.x * y);
+        }
+        inline PT op - (const PT &t) const {
+                return PT(x - t.x, y - t.y, z - t.z);
+        }
+        inline PT op + (const PT &t) const {
+                return PT(x + t.x, y + t.y, z + t.z);
+        }
+        inline PT op / (DB d) {
+                return PT(x / d, y / d, z / d);
+        }
+        inline PT op * (DB d) {
+                return PT(x * d, y * d, z * d);
+        }
+        inline bool op == (const PT &t) const {
+                return sgn(x - t.x) == 0 && sgn(y - t.y) == 0 && sgn(z - t.z) == 0;
+        }
+        inline bool op < (const PT &t) const {
+                int f1=sgn(x-t.x), f2=sgn(y-t.y), f3=sgn(z-t.z);
+                return f1<0||(f1==0&&f2<0)||(f1==0&&f2==0&&f3<0);
+        }
+        inline DB vlen() {
+                return sqrt(x * x + y * y + z * z);
+        }
+        inline DB dot(const PT& t) const {
+                return x * t.x + y * t.y + z * t.z;
+        }
+};
+struct line{PT a, b;};
+struct plane{ PT a,b,c; };
+PT norm(PT a, PT b, PT c) {
+        return (b - a) * (c - a);
+}
+PT norm(plane s) {
+        return (s.b - s.a) * (s.c - s.a);
+}
+PT corplane(PT a, PT b, PT c, PT d) {
+        return sgn(norm(a, b, c).dot(d - a)) == 0;
+}
+bool same_side(PT p1, PT p2, PT a, PT b, PT c) {
+        PT v = norm(a, b, c);
+        return sgn(v.dot(p1-a)) * sgn(v.dot(p2-a)) >= 0;
+}
+double ptoplane(PT p, plane s) {
+        return fabs(norm(s).dot(p - s.a)) / norm(s).vlen();
+}
+double ptoplane(PT p, PT s1, PT s2, PT s3) {
+        return fabs(norm(s1, s2, s3).dot(p - s1)) / norm(s1, s2, s3).vlen();
+}
+double area(PT a, PT b, PT c) {
+        return ((b-a)*(c-a)).vlen();
+}
+//四面体面积*6
+double volume(PT a, PT b, PT c, PT d) {
+        return ((b-a)*(c-a)).dot(d-a);
+}
+inline Point get_point(Point st,Point ed,Point tp){
+        double t1=(tp-st).dot(ed-st);
+        double t2=(ed-st).dot(ed-st);
+        double t=t1/t2;
+        Point ans=st + ((ed-st)*t);
+        return ans;
+}
+inline double dist(Point st,Point ed) {
+        return sqrt((ed-st).dot(ed-st));
+}
+//沿着直线st-ed旋转角度A，从ed往st看是逆时针
+Point rotate(Point st,Point ed,Point tp,double A){
+        Point root=get_point(st,ed,tp);
+        Point e=(ed-st)/dist(ed,st);
+        Point r=tp-root;
+        Point vec=e*r;
+        Point ans=r*cos(A)+vec*sin(A)+root;
+        return ans;
+}
+
+struct face { 
+        int a,b,c;
+        bool ok;
+};
+struct CH3D {
+        static const int MAXN = 55;
+        int n;//初始顶点数
+        PT P[MAXN];//初始顶点
+        int num;//凸包表面的三角形个数
+        face F[8*MAXN];//凸包表面的三角形
+        int g[MAXN][MAXN];
+        double vol(PT &p, face &f) {
+                Point m=P[f.b]-P[f.a];
+                Point n=P[f.c]-P[f.a];
+                Point t=p-P[f.a];
+                return (m*n).dot(t);
+        }
+        void deal(int p,int a,int b) {
+                int f=g[a][b];
+                face add;
+                if(F[f].ok) {
+                        if(sgn(vol(P[p],F[f])) > 0) {
+                                dfs(p,f);
+                        } else {
+                                add.a=b; add.b=a; add.c=p; add.ok=true;
+                                g[p][b]=g[a][p]=g[b][a]=num;
+                                F[num++]=add;
+                        }
+                }
+        }
+        void dfs(int p,int now) {
+                F[now].ok=false;
+                deal(p,F[now].b,F[now].a);
+                deal(p,F[now].c,F[now].b);
+                deal(p,F[now].a,F[now].c);
+        }
+        bool same(int s,int t) {
+                Point a=P[F[s].a];
+                Point b=P[F[s].b];
+                Point c=P[F[s].c];
+                return sgn(volume(a,b,c,P[F[t].a])) == 0 &&
+                        sgn(volume(a,b,c,P[F[t].b])) == 0 &&
+                        sgn(volume(a,b,c,P[F[t].c])) == 0;
+        }
+        void create() {
+                int i,j,tmp;
+                face add;
+                num=0;
+                if(n<4)return;
+                bool flag=true;
+                for(i=1;i<n;i++) {
+                        if(sgn((P[0]-P[i]).vlen()) > 0) {
+                                std::swap(P[1],P[i]);
+                                flag=false;
+                                break;
+                        }
+                }
+                if(flag)return;
+                flag=true;
+                for(i=2;i<n;i++) {
+                        if(sgn(area(P[0], P[1], P[i])) > 0) {
+                                std::swap(P[2],P[i]);
+                                flag=false;
+                                break;
+                        }
+                }
+                if(flag)return;
+                flag=true;
+                for(i=3;i<n;i++) {
+                        if(sgn(fabs(volume(P[0], P[1], P[2], P[i]))) > 0) {
+                                std::swap(P[3],P[i]);
+                                flag=false;
+                                break;
+                        }
+                }
+                if(flag)return;
+                for(i=0;i<4;i++) {
+                        add.a=(i+1)%4;
+                        add.b=(i+2)%4;
+                        add.c=(i+3)%4;
+                        add.ok=true;
+                        if(sgn(vol(P[i], add)) > 0) {
+                                std::swap(add.b,add.c);
+                        }
+                        g[add.a][add.b]=g[add.b][add.c]=g[add.c][add.a]=num;
+                        F[num++]=add;
+                }
+                for(i=4;i<n;i++) {
+                        for(j=0;j<num;j++) {
+                                if(F[j].ok && sgn(vol(P[i],F[j])) > 0) {
+                                        dfs(i,j);
+                                        break;
+                                }
+                        }
+                }
+                tmp=num;
+                for(i=num=0;i<tmp;i++)
+                        if(F[i].ok)
+                                F[num++]=F[i];
+        }
+        double ptoface(PT p,int i) {
+                return fabs(volume(P[F[i].a],P[F[i].b],P[F[i].c],p)/((P[F[i].b]-P[F[i].a])*(P[F[i].c]-P[F[i].a])).vlen());
+        }
+}hull;
+//旋转点集，使法向量为v的平面水平
+void rotate_to_horizontal(int n, PT *p, PT v) {
+        if(sgn(v.x)==0 && sgn(v.y)==0) {
+                return ;
+        }
+        double a, c, s;
+        a = atan2(v.y, v.x);
+        c = cos(a), s = sin(a);
+        for(int i = 0; i < n; i++) {
+                PT t = p[i];
+                p[i].x = t.x * c + t.y * s;
+                p[i].y = t.y * c - t.x * s;
+        }
+        a = atan2(sqrt(v.x*v.x+v.y*v.y), v.z);
+        c = cos(a), s = sin(a);
+        for(int i = 0; i < n; i++) {
+                PT t = p[i];
+                p[i].z = t.z * c + t.x * s;
+                p[i].x = t.x * c - t.z * s;
+        }
+}
+struct Convex_Hull {
+        static const int N = 110;
+        Point p[2 * N];
+        int n;
+        void init() {
+                n = 0;
+        }
+        inline void push_back(const Point &np) {
+                p[n++] = np;
+        }
+        DB cross(PT a, PT b) {
+                return a.x * b.y - a.y * b.x;
+        }
+        void gao() {
+                if(n < 3) {
+                        return ;
+                }
+                std::sort(p, p + n);
+                std::copy(p, p + n - 1, p + n);
+                std::reverse(p + n, p + 2 * n - 1);
+                int m = 0, top = 0;
+                for(int i = 0; i < 2 * n - 1; i++) {
+                        while(top >= m + 2 && sgn(cross(p[top-1]-p[top-2],p[i]-p[top-2])) <= 0) {
+                                top --;
+                        }
+                        p[top++] = p[i];
+                        if(i == n - 1) {
+                                m = top - 1;
+                        }
+                }
+                n = top - 1;
+        }
+        double get_area() {
+                double ret = 0;
+                for(int i = 0; i < n; i++) {
+                        ret += p[i].x * (p[i + 1].y) - p[i].y*p[i+1].x;
+                }
+                return fabs(ret) / 2;
+        }
+}convex;
+PT p[55]; int n;
+bool input()
+{
+        scanf("%d", &n);
+        if(n == 0) return false;
+        hull.n = n;
+        for(int i = 0; i < n; i++) {
+                hull.P[i].in();
+        }
+        double ans_h = 0, ans_area = 1e30;
+        hull.create();
+        for(int i = 0; i < hull.num; i++) {
+                for(int j = 0; j < n; j++) {
+                        p[j] = hull.P[j];
+                }
+                PT v = norm(p[hull.F[i].b], p[hull.F[i].a], p[hull.F[i].c]);
+                rotate_to_horizontal(n, p, v);
+                double z = p[hull.F[i].a].z;
+                for(int j = 0; j < n; j++) {
+                        p[j].z -= z;
+                }
+                double H = 0;
+                for(int j = 0; j < n; j++) {
+                        H = std::max(H, hull.ptoface(hull.P[j], i));
+                }
+                convex.init();
+                for(int j = 0; j < n; j++) {
+                        convex.push_back(p[j]);
+                }
+                convex.gao();
+                double S = convex.get_area();
+                if(sgn(H - ans_h) > 0 || sgn(H - ans_h)==0 && sgn(ans_area-S) > 0) {
+                        ans_h = H;
+                        ans_area = S;
+                }
+        }
+        printf("%.3f %.3f\n", ans_h, ans_area);
+        return true;
+}
