@@ -329,6 +329,58 @@ bool cir_cir(Point c1, double r1, Point c2, double r2, Point& p1, Point& p2)
 	cir_line(c1, r1, u, v, p1, p2);
 	return true;
 }
+
+//判断n+1个圆是否有交,R[n]=mid
+//nlogn判断n个圆是否有交是这样的，我们先锁定x的范围，也就是所有圆的右边界的最小值right，
+//以及所有圆的左边界的最大值left  那么n个圆的公共部分肯定在left right之间，
+//而且有一个很重要的性质，如果n个圆的公共部分的左右区间是L,R,假设我们当前枚举的答案是mid，
+//如果x=mid这条直线与所有的圆没有公共部分，
+//那么我们找两个圆与直线的公共部分不相交（其实就是上边界最小以及下边界最大的两个圆），
+//判断这两个圆的公共部分在x=mid的哪一侧即可，其实就是满足二分性质
+bool judge(double mid)  
+{  
+    double Left,Right;  
+    for(int i = 0; i <= n; i++) {  
+        if(i == 0) {  
+            Left = p[i].x - R[i];  
+            Right = p[i].x + R[i];  
+        } else{  
+            if(p[i].x-R[i] > Left) Left = p[i].x-R[i];  
+            if(p[i].x+R[i] < Right) Right = p[i].x+R[i];  
+        }  
+    }  
+  
+    if(Left - Right > eps) return false;  
+    int step = 50;  
+    while(step--) {  
+        double mid = (Left + Right)*0.5;  
+        double low,high,uy,dy;  
+        int low_id,high_id;  
+        for(int i = 0; i <= n; i++) {  
+            double d = sqrt(R[i]*R[i]-(p[i].x-mid)*(p[i].x-mid));  
+            uy = p[i].y + d;  
+            dy = p[i].y - d;  
+            if(i == 0) {  
+                low_id = high_id = 0;  
+                low = dy; high = uy;  
+            } else {  
+                if(uy < high) high = uy,high_id = i;  
+                if(dy > low) low = dy,low_id = i;  
+            }  
+        }  
+          
+        if(high - low > -eps) {  
+            return 1;  
+        }  
+        Point a,b;  
+        if(Cir_Cir(p[high_id],R[high_id],p[low_id],R[low_id],a,b)) {  
+            if((a.x+b.x)*0.5 < mid) {  
+                Right = mid;  
+            } else Left = mid;  
+        } else return false;  
+    }  
+    return false;  
+}  
 /***************************************************************************************/
 
 
