@@ -329,7 +329,100 @@ bool cir_cir(Point c1, double r1, Point c2, double r2, Point& p1, Point& p2)
 	cir_line(c1, r1, u, v, p1, p2);
 	return true;
 }
-
+struct Point {
+    double x, y;
+	Point(){}
+	Point (double tx,double ty)
+	{
+		this->x = tx;
+		this->y = ty;
+	}
+	bool operator == (const Point &t) const {
+		return t.x == x && t.y == y;
+	}
+	Point operator - (const Point &t) const {
+		Point res;
+		res.x = x - t.x;
+		res.y = y - t.y;
+		return res;
+	}
+}; 
+double multi(Point &o, Point &a, Point &b) {							// 点积
+	return (a.x-o.x)*(b.x-o.x) + (a.y-o.y)*(b.y-o.y);
+}
+double cross(Point &o, Point &a, Point &b) {							// 叉积
+	return (a.x-o.x)*(b.y-o.y) - (b.x-o.x)*(a.y-o.y); 
+}
+double cp(Point &a, Point &b) {									
+	return a.x*b.y - b.x*a.y;
+}
+double angle(Point &a, Point &b) {												// 两向量夹角
+	double ans = fabs((atan2(a.y, a.x) - atan2(b.y, b.x)));
+	return ans > pi+eps ? 2*pi-ans : ans;
+}
+double cir_polygon(Point ct, double R, Point *p, int n) {					// 圆与简单多边形
+	Point o, a, b, t1, t2;
+	double sum=0, res, d1, d2, d3, sign;
+	o.x = o.y = 0;
+	p[n] = p[0];
+	for (int i=0; i < n; i++) {
+		a = p[i]-ct;
+		b = p[i+1]-ct;
+		sign = cp(a,b) > 0 ? 1 : -1;
+		d1 = a.x*a.x + a.y*a.y;
+		d2 = b.x*b.x + b.y*b.y;
+		d3 = sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+		if (d1 < R*R+eps && d2 < R*R+eps) { //两个点都在圆内
+			res = fabs(cp(a, b));
+		}
+		else if (d1 < R*R-eps || d2 < R*R-eps) { //一个点在圆内
+			cir_line(o, R, a, b, t1, t2);
+			if ((a.x-t2.x)*(b.x-t2.x) < eps && (a.y-t2.y)*(b.y-t2.y) < eps) {
+				t1 = t2;
+			}
+			if (d1 < d2) 
+				res = fabs(cp(a, t1)) + R*R*angle(b, t1);
+			else
+				res = fabs(cp(b, t1)) + R*R*angle(a, t1);
+		}
+		else if (fabs(cp(a, b))/d3 > R-eps) { // 两个点都在园外，且线段与圆之多只有一个交点
+			res = R*R*angle(a, b);
+		}
+		else {  // 线段与圆有两个交点
+			cir_line(o, R, a, b, t1, t2); 
+			if (multi(t1, a, b) > eps || multi(t2, a, b) > eps) { // a b 在圆的同一侧
+				res = R*R*angle(a, b);
+			}
+			else {
+				res = fabs(cp(t1, t2));
+				if (cross(t1, t2, a) < eps) 
+					res += R*R*(angle(a, t1) + angle(b, t2));
+				else 
+					res += R*R*(angle(a, t2) + angle(b, t1));
+			}
+		}			
+		sum += res * sign;
+	}
+	return fabs(sum)/2.0;
+}
+Point p[55];
+int main()
+{
+    int t,ca=1;
+	double x1,x2,x3,x4,y1,y2,y3,y4,R;
+	while(scanf("%lf",&R)!=EOF)
+	{
+		Point cen = Point(0,0);
+		int n;
+		scanf("%d",&n);
+		for(int i = 0; i < n; i++)
+		{
+			scanf("%lf%lf",&p[i].x,&p[i].y);
+		}
+		printf("%.2lf\n",cir_polygon(cen,R,p,n));
+	}
+	return 0;
+}
 //判断n+1个圆是否有交,R[n]=mid
 //nlogn判断n个圆是否有交是这样的，我们先锁定x的范围，也就是所有圆的右边界的最小值right，
 //以及所有圆的左边界的最大值left  那么n个圆的公共部分肯定在left right之间，
