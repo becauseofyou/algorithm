@@ -1,9 +1,8 @@
 
-const int N = ;
-const int CD = ;
+const int N = ; // total number of nodes in the dict tree
+const int CD = ; // alphabet number
 //template based
 int sz, ch[N][CD], val[N], fail[N], Q[N], ID[512];
-
 
 //problem needed
 
