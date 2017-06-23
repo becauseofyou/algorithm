@@ -1,13 +1,11 @@
 
-const int N = 150 * 70 + 10;
-const int CD = 26;
+const int N = ;
+const int CD = ;
 //template based
 int sz, ch[N][CD], val[N], fail[N], Q[N], ID[512];
 
 
 //problem needed
-char s[1000010];
-int flag[N], id[N];
 
 void Init() {
     fail[0] = 0;
@@ -21,20 +19,18 @@ void Reset() {
     sz = 1;
 }
 
-void Insert(char *a, int idx) {
+void Insert(char *a) {
     int p = 0;
     for(; *a; a++)  {
         int c = ID[*a];
         if (!ch[p][c])  {
             memset (ch[sz], 0, sizeof(ch[sz]));
             val[sz] = 0;
-            flag[sz] = 0;
             ch[p][c] = sz++;
         }
         p = ch[p][c];
     }
     val[p] = 1;
-    id[p] = idx;
 }
 
 void Construct() {
