@@ -1,6 +1,7 @@
 // vimrc
-set cin nu ts=4 sw=4 sts=4 et noswapfile nobackup
+set cin rnu ts=4 sw=4 sts=4 et noswapfile nobackup
 set backspace=eol,start,indent
+set so=100
 syntax on
 map <F4> :!g++ -std=c++11 % -o %<<cr>
 map <F5> :!./%<<cr>
