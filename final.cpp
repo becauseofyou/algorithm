@@ -1,10 +1,14 @@
 // vimrc
-set cin rnu ts=4 sw=4 sts=4 et noswapfile nobackup
-set backspace=eol,start,indent
+set guifont=Monaco:h08
+set cin nu rnu ts=4 sw=4 sts=4 et noswapfile nobackup
 set so=100
+set backspace=eol,start,indent
+"colorscheme last256
 syntax on
-map <F4> :!g++ -std=c++11 % -o %< -Wall<cr>
-map <F5> :!./%<<cr>
+map <F4> :!g++ -std=c++11 %<.cpp -m32 -Wall -o %<<cr>
+map <F5> :!%< < %<.in<cr>
+map <F6> :vsplit %<.in<cr>
+
 typedef double DB;
 #define op operator 
 const DB eps = 1e-8;
