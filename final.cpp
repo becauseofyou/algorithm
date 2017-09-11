@@ -1,5 +1,5 @@
 // vimrc
-set guifont=Monaco:h08
+set guifont=Monaco:h08:b
 set cin nu rnu ts=4 sw=4 sts=4 et noswapfile nobackup
 set so=100
 set backspace=eol,start,indent
